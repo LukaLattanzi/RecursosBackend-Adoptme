@@ -1,22 +1,27 @@
 import { faker } from '@faker-js/faker';
+import bcrypt from 'bcrypt';
 
 // Configurar faker en español (versión actualizada)
 faker.locale = 'es';
 
 /**
- * Generador de usuarios mock
+ * Generador de usuarios mock según especificaciones del entregable
+ * - password: "coder123" encriptada
+ * - role: "user" o "admin"
+ * - pets: array vacío
  */
 export const generateUser = () => {
-    const numOfPets = faker.number.int({ min: 0, max: 5 });
-
+    // Encriptar la contraseña "coder123" de forma síncrona para mocking
+    const hashedPassword = bcrypt.hashSync('coder123', 10);
+    
     return {
         _id: faker.database.mongodbObjectId(),
         first_name: faker.person.firstName(),
         last_name: faker.person.lastName(),
         email: faker.internet.email(),
-        password: faker.internet.password(),
+        password: hashedPassword, // Contraseña encriptada como solicita el entregable
         role: faker.helpers.arrayElement(['user', 'admin']),
-        pets: Array.from({ length: numOfPets }, () => faker.database.mongodbObjectId())
+        pets: [] // Array vacío como solicita el entregable
     };
 };
 

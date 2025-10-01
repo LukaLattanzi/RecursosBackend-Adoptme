@@ -11,7 +11,8 @@
     "test": "mocha test/supertest.test.js",
     "test:mocking": "node test-mocking.js",
     "test:logger": "node test-logger.js",
-    "test:logger:prod": "NODE_ENV=production node test-logger.js"
+    "test:logger:prod": "NODE_ENV=production node test-logger.js",
+    "verify": "node verify-entregable1.js"
   },
   "keywords": [],
   "author": "",

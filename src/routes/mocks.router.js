@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { generateUsers, generatePets, generateAdoptions } from '../utils/mocking.js';
 import { catchAsync, AppError } from '../utils/errorHandler.js';
+import { usersService, petsService } from '../services/index.js';
+import logger from '../utils/logger.js';
 
 const router = Router();
 
@@ -21,10 +23,16 @@ router.get('/mockingpets', catchAsync(async (req, res) => {
 
 /**
  * GET /api/mocks/mockingusers
- * Genera 50 usuarios de prueba
+ * Genera 50 usuarios de prueba con formato de MongoDB
+ * Características según entregable:
+ * - password: "coder123" encriptada
+ * - role: "user" o "admin"
+ * - pets: array vacío
  */
 router.get('/mockingusers', catchAsync(async (req, res) => {
+    logger.info('Generando 50 usuarios mock');
     const users = generateUsers(50);
+    
     res.status(200).json({
         status: 'success',
         results: users.length,
@@ -35,8 +43,9 @@ router.get('/mockingusers', catchAsync(async (req, res) => {
 }));
 
 /**
- * GET /api/mocks/generateData
- * Inserta datos de prueba en la base de datos
+ * POST /api/mocks/generateData
+ * Genera e inserta datos en la base de datos
+ * Parámetros: users (número), pets (número)
  */
 router.post('/generateData', catchAsync(async (req, res) => {
     const { users: userCount = 50, pets: petCount = 100 } = req.body;
@@ -46,20 +55,58 @@ router.post('/generateData', catchAsync(async (req, res) => {
         throw new AppError('No se pueden generar más de 1000 registros por tipo', 400);
     }
 
-    const users = generateUsers(userCount);
-    const pets = generatePets(petCount);
+    if (userCount < 0 || petCount < 0) {
+        throw new AppError('Los parámetros deben ser números positivos', 400);
+    }
 
-    // Aquí normalmente insertarías en la base de datos
-    // Por ahora solo devolvemos la confirmación
+    logger.info(`Iniciando generación de ${userCount} usuarios y ${petCount} mascotas`);
+
+    // Generar usuarios y mascotas
+    const usersData = generateUsers(userCount);
+    const petsData = generatePets(petCount);
+
+    // Insertar usuarios en la base de datos
+    const insertedUsers = [];
+    for (const userData of usersData) {
+        try {
+            const user = await usersService.create(userData);
+            insertedUsers.push(user);
+        } catch (error) {
+            logger.warning(`Error insertando usuario ${userData.email}:`, error.message);
+        }
+    }
+
+    // Insertar mascotas en la base de datos
+    const insertedPets = [];
+    for (const petData of petsData) {
+        try {
+            const pet = await petsService.create(petData);
+            insertedPets.push(pet);
+        } catch (error) {
+            logger.warning(`Error insertando mascota ${petData.name}:`, error.message);
+        }
+    }
+
+    logger.info(`Inserción completada: ${insertedUsers.length} usuarios y ${insertedPets.length} mascotas`);
 
     res.status(201).json({
         status: 'success',
-        message: `Se generaron ${userCount} usuarios y ${petCount} mascotas`,
+        message: `Se insertaron ${insertedUsers.length} usuarios y ${insertedPets.length} mascotas en la base de datos`,
         data: {
-            usersGenerated: userCount,
-            petsGenerated: petCount,
-            sampleUsers: users.slice(0, 5), // Muestra de 5 usuarios
-            samplePets: pets.slice(0, 5)    // Muestra de 5 mascotas
+            usersRequested: userCount,
+            usersInserted: insertedUsers.length,
+            petsRequested: petCount,
+            petsInserted: insertedPets.length,
+            sampleUsers: insertedUsers.slice(0, 3).map(u => ({ 
+                id: u._id, 
+                email: u.email, 
+                role: u.role 
+            })),
+            samplePets: insertedPets.slice(0, 3).map(p => ({ 
+                id: p._id, 
+                name: p.name, 
+                specie: p.specie 
+            }))
         }
     });
 }));
