@@ -1,2 +1,19 @@
 node_modules
 /test
+
+# Variables de entorno
+.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# Dependencias opcionales
+.npm
+
+# Directorios de cobertura
+coverage/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db

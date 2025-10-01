@@ -1,31 +1,59 @@
-import { usersService } from "../services/index.js"
+import { usersService } from "../services/index.js";
+import { catchAsync, AppError } from "../utils/errorHandler.js";
 
-const getAllUsers = async(req,res)=>{
+const getAllUsers = catchAsync(async (req, res) => {
     const users = await usersService.getAll();
-    res.send({status:"success",payload:users})
-}
+    res.status(200).json({
+        status: "success",
+        results: users.length,
+        payload: users
+    });
+});
 
-const getUser = async(req,res)=> {
+const getUser = catchAsync(async (req, res) => {
     const userId = req.params.uid;
     const user = await usersService.getUserById(userId);
-    if(!user) return res.status(404).send({status:"error",error:"User not found"})
-    res.send({status:"success",payload:user})
-}
 
-const updateUser =async(req,res)=>{
+    if (!user) {
+        throw new AppError("Usuario no encontrado", 404);
+    }
+
+    res.status(200).json({
+        status: "success",
+        payload: user
+    });
+});
+
+const updateUser = catchAsync(async (req, res) => {
     const updateBody = req.body;
     const userId = req.params.uid;
-    const user = await usersService.getUserById(userId);
-    if(!user) return res.status(404).send({status:"error", error:"User not found"})
-    const result = await usersService.update(userId,updateBody);
-    res.send({status:"success",message:"User updated"})
-}
 
-const deleteUser = async(req,res) =>{
+    const user = await usersService.getUserById(userId);
+    if (!user) {
+        throw new AppError("Usuario no encontrado", 404);
+    }
+
+    const result = await usersService.update(userId, updateBody);
+    res.status(200).json({
+        status: "success",
+        message: "Usuario actualizado exitosamente"
+    });
+});
+
+const deleteUser = catchAsync(async (req, res) => {
     const userId = req.params.uid;
-    const result = await usersService.getUserById(userId);
-    res.send({status:"success",message:"User deleted"})
-}
+
+    const user = await usersService.getUserById(userId);
+    if (!user) {
+        throw new AppError("Usuario no encontrado", 404);
+    }
+
+    await usersService.delete(userId);
+    res.status(200).json({
+        status: "success",
+        message: "Usuario eliminado exitosamente"
+    });
+});
 
 export default {
     deleteUser,
