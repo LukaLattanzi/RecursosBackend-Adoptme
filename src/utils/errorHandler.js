@@ -2,6 +2,8 @@
  * Middleware de manejo de errores centralizado
  */
 
+import logger from './logger.js';
+
 /**
  * Clase personalizada para errores de la aplicación
  */
@@ -55,6 +57,13 @@ const handleJWTExpiredError = () =>
  * Envío de errores en desarrollo
  */
 const sendErrorDev = (err, res) => {
+    logger.error('Error en desarrollo', {
+        status: err.status,
+        message: err.message,
+        stack: err.stack,
+        statusCode: err.statusCode
+    });
+
     res.status(err.statusCode).json({
         status: err.status,
         error: err,
@@ -69,6 +78,12 @@ const sendErrorDev = (err, res) => {
 const sendErrorProd = (err, res) => {
     // Error operacional, mensaje confiable para enviar al cliente
     if (err.isOperational) {
+        logger.error('Error operacional', {
+            status: err.status,
+            message: err.message,
+            statusCode: err.statusCode
+        });
+
         res.status(err.statusCode).json({
             status: err.status,
             message: err.message
@@ -76,7 +91,11 @@ const sendErrorProd = (err, res) => {
     }
     // Error de programación u otros errores desconocidos: no filtrar detalles
     else {
-        console.error('ERROR 💥', err);
+        logger.fatal('Error de programación no controlado', {
+            error: err.message,
+            stack: err.stack
+        });
+
         res.status(500).json({
             status: 'error',
             message: 'Algo salió mal!'
@@ -114,6 +133,13 @@ export const globalErrorHandler = (err, req, res, next) => {
  * Middleware para manejar rutas no encontradas
  */
 export const notFoundHandler = (req, res, next) => {
+    logger.warning(`Ruta no encontrada: ${req.originalUrl}`, {
+        method: req.method,
+        url: req.originalUrl,
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+    });
+
     const err = new AppError(`No se puede encontrar ${req.originalUrl} en este servidor!`, 404);
     next(err);
 };

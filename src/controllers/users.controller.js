@@ -1,8 +1,12 @@
 import { usersService } from "../services/index.js";
 import { catchAsync, AppError } from "../utils/errorHandler.js";
+import logger from "../utils/logger.js";
 
 const getAllUsers = catchAsync(async (req, res) => {
+    logger.info('Obteniendo todos los usuarios');
     const users = await usersService.getAll();
+
+    logger.info(`Se obtuvieron ${users.length} usuarios exitosamente`);
     res.status(200).json({
         status: "success",
         results: users.length,
@@ -12,12 +16,16 @@ const getAllUsers = catchAsync(async (req, res) => {
 
 const getUser = catchAsync(async (req, res) => {
     const userId = req.params.uid;
+    logger.debug(`Buscando usuario con ID: ${userId}`);
+
     const user = await usersService.getUserById(userId);
 
     if (!user) {
+        logger.warning(`Usuario no encontrado con ID: ${userId}`);
         throw new AppError("Usuario no encontrado", 404);
     }
 
+    logger.info(`Usuario encontrado exitosamente: ${user.email}`);
     res.status(200).json({
         status: "success",
         payload: user
