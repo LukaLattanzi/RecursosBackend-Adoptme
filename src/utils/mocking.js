@@ -13,7 +13,7 @@ faker.locale = 'es';
 export const generateUser = () => {
     // Encriptar la contraseña "coder123" de forma síncrona para mocking
     const hashedPassword = bcrypt.hashSync('coder123', 10);
-    
+
     return {
         _id: faker.database.mongodbObjectId(),
         first_name: faker.person.firstName(),

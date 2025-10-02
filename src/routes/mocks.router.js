@@ -32,7 +32,7 @@ router.get('/mockingpets', catchAsync(async (req, res) => {
 router.get('/mockingusers', catchAsync(async (req, res) => {
     logger.info('Generando 50 usuarios mock');
     const users = generateUsers(50);
-    
+
     res.status(200).json({
         status: 'success',
         results: users.length,
@@ -97,15 +97,15 @@ router.post('/generateData', catchAsync(async (req, res) => {
             usersInserted: insertedUsers.length,
             petsRequested: petCount,
             petsInserted: insertedPets.length,
-            sampleUsers: insertedUsers.slice(0, 3).map(u => ({ 
-                id: u._id, 
-                email: u.email, 
-                role: u.role 
+            sampleUsers: insertedUsers.slice(0, 3).map(u => ({
+                id: u._id,
+                email: u.email,
+                role: u.role
             })),
-            samplePets: insertedPets.slice(0, 3).map(p => ({ 
-                id: p._id, 
-                name: p.name, 
-                specie: p.specie 
+            samplePets: insertedPets.slice(0, 3).map(p => ({
+                id: p._id,
+                name: p.name,
+                specie: p.specie
             }))
         }
     });
