@@ -6,6 +6,9 @@ import dotenv from 'dotenv';
 // Cargar variables de entorno
 dotenv.config();
 
+// Diagnóstico rápido: indicar que app.js empezó a ejecutarse
+console.log('[app] app.js empezando evaluación...');
+
 import usersRouter from './routes/users.router.js';
 import petsRouter from './routes/pets.router.js';
 import adoptionsRouter from './routes/adoption.router.js';
@@ -22,7 +25,14 @@ const PORT = process.env.PORT || 8080;
 mongoose.set('strictQuery', false);
 
 // Conectar a MongoDB con manejo de errores
-mongoose.connect(process.env.MONGO_URL)
+// Conectar a MongoDB con manejo de errores y timeout explícito
+const mongooseOptions = {
+  // Mongoose 6 no necesita useNewUrlParser / useUnifiedTopology pero podemos
+  // controlar el timeout de selección de servidor para fallar rápido si no hay red.
+  serverSelectionTimeoutMS: 5000
+};
+
+mongoose.connect(process.env.MONGO_URL, mongooseOptions)
   .then(() => {
     logger.info('✅ Conectado a MongoDB exitosamente', {
       database: 'adoptme',
@@ -30,12 +40,42 @@ mongoose.connect(process.env.MONGO_URL)
     });
   })
   .catch((error) => {
-    logger.fatal('❌ Error conectando a MongoDB', {
+    logger.fatal('❌ Error conectando a MongoDB (connect)', {
       error: error.message,
       stack: error.stack
     });
+    // No salir inmediatamente: mongoose puede emitir eventos; cerramos con código 1
     process.exit(1);
   });
+
+// Listeners de conexión para mayor trazabilidad
+mongoose.connection.on('connected', () => {
+  logger.info('MongoDB event: connected');
+});
+
+mongoose.connection.on('error', (err) => {
+  logger.error('MongoDB event: error', { error: err.message });
+});
+
+mongoose.connection.on('disconnected', () => {
+  logger.warning('MongoDB event: disconnected');
+});
+
+mongoose.connection.on('reconnectFailed', () => {
+  logger.error('MongoDB event: reconnectFailed');
+});
+
+// Cerrar conexión ordenadamente al terminar proceso
+process.on('SIGINT', async () => {
+  try {
+    await mongoose.connection.close();
+    logger.info('MongoDB connection closed through app termination');
+    process.exit(0);
+  } catch (err) {
+    logger.error('Error closing MongoDB connection', { error: err.message });
+    process.exit(1);
+  }
+});
 
 app.use(express.json());
 app.use(cookieParser());
@@ -58,6 +98,8 @@ app.all('*', notFoundHandler);
 app.use(globalErrorHandler);
 
 app.listen(PORT, () => {
+  // Mensaje por consola para garantizar visibilidad incluso si el logger falla
+  console.log(`[app] Servidor escuchando en puerto ${PORT}`);
   logger.info(`🚀 Servidor ejecutándose en puerto ${PORT}`, {
     port: PORT,
     environment: process.env.NODE_ENV || 'development',
