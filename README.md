@@ -99,6 +99,7 @@ src/
 ```
 npm start           # Producción
 npm run dev         # Desarrollo con nodemon
+npm test            # Ejecuta la suite de tests (mocha + chai + supertest)
 ```
 
 ## 🔍 Endpoints Principales
@@ -136,3 +137,34 @@ La documentación cubre los módulos: Sessions, Pets y Adoptions (endpoints, par
 
 **Autor:** Luka Lattanzi  
 **Proyecto:** Backend AdoptMe - ENTREGABLE N°1 ✅
+
+## 🧪 Tests
+
+Se agregó una suite de tests con `mocha`, `chai` y `supertest` para cubrir los endpoints de `users` y `pets`.
+
+- Ejecutar tests localmente:
+
+```bash
+npm test
+```
+
+- Qué incluyen los tests:
+
+  - `test/users.test.js` — tests de `GET /api/users`, `GET /api/users/:uid`, `PUT` y `DELETE` con validaciones de payload y errores.
+  - `test/pets.test.js` — tests de `GET /api/pets`, `POST /api/pets` (validación de campos), `PUT` y `DELETE`.
+
+- Nota: los tests usan stubs sobre los servicios (`usersService`, `petsService`) para evitar depender de una base de datos en ejecución. Esto permite validar la lógica de controladores y respuestas HTTP rápidamente.
+
+## 📦 Subir tests al repositorio y CI
+
+1. Commitear y pushear los cambios (tests incluidos):
+
+```bash
+git add test/ package.json README.md .github/workflows/nodejs-test.yml
+git commit -m "chore(tests): add mocha/chai/supertest tests for users and pets and CI workflow"
+git push origin main
+```
+
+2. Integrar CI (GitHub Actions): se agregó un workflow que ejecuta `npm ci` y `npm test` en pushes y pull requests. Al pushear, GitHub ejecutará los tests automáticamente.
+
+Si preferís, puedo abrir un `pull request` con estos cambios o adaptar el workflow para correr también un entorno con `mongodb-memory-server` para tests de integración.
