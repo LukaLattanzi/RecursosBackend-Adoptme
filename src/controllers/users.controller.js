@@ -1,6 +1,9 @@
 import { usersService } from "../services/index.js";
 import { catchAsync, AppError } from "../utils/errorHandler.js";
 import logger from "../utils/logger.js";
+import __dirname from '../utils/index.js';
+import path from 'path';
+
 
 const getAllUsers = catchAsync(async (req, res) => {
     logger.info('Obteniendo todos los usuarios');
@@ -63,9 +66,34 @@ const deleteUser = catchAsync(async (req, res) => {
     });
 });
 
+const uploadDocuments = catchAsync(async (req, res) => {
+    const userId = req.params.uid;
+    const files = req.files;
+
+    if (!files || files.length === 0) return res.status(400).send({ status: 'error', error: 'No files uploaded' });
+
+    const user = await usersService.getUserById(userId);
+    if (!user) throw new AppError('Usuario no encontrado', 404);
+
+    const newDocs = files.map(f => ({
+        name: f.originalname,
+        reference: path.join(__dirname, '..', 'public', 'documents', f.filename)
+    }));
+
+    const updatedDocs = Array.isArray(user.documents) ? user.documents.concat(newDocs) : newDocs;
+
+    await usersService.update(userId, { documents: updatedDocs });
+
+    res.status(200).json({ status: 'success', payload: newDocs });
+});
+
 export default {
     deleteUser,
     getAllUsers,
     getUser,
-    updateUser
+    updateUser,
+    uploadDocuments
 }
+
+
+
