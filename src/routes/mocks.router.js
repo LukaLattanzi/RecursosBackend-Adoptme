@@ -6,10 +6,6 @@ import logger from '../utils/logger.js';
 
 const router = Router();
 
-/**
- * GET /api/mocks/mockingpets
- * Genera 100 mascotas de prueba
- */
 router.get('/mockingpets', catchAsync(async (req, res) => {
     const pets = generatePets(100);
     res.status(200).json({
@@ -21,14 +17,6 @@ router.get('/mockingpets', catchAsync(async (req, res) => {
     });
 }));
 
-/**
- * GET /api/mocks/mockingusers
- * Genera 50 usuarios de prueba con formato de MongoDB
- * Características según entregable:
- * - password: "coder123" encriptada
- * - role: "user" o "admin"
- * - pets: array vacío
- */
 router.get('/mockingusers', catchAsync(async (req, res) => {
     logger.info('Generando 50 usuarios mock');
     const users = generateUsers(50);
@@ -42,15 +30,9 @@ router.get('/mockingusers', catchAsync(async (req, res) => {
     });
 }));
 
-/**
- * POST /api/mocks/generateData
- * Genera e inserta datos en la base de datos
- * Parámetros: users (número), pets (número)
- */
 router.post('/generateData', catchAsync(async (req, res) => {
     const { users: userCount = 50, pets: petCount = 100 } = req.body;
 
-    // Validación de parámetros
     if (userCount > 1000 || petCount > 1000) {
         throw new AppError('No se pueden generar más de 1000 registros por tipo', 400);
     }
@@ -61,11 +43,9 @@ router.post('/generateData', catchAsync(async (req, res) => {
 
     logger.info(`Iniciando generación de ${userCount} usuarios y ${petCount} mascotas`);
 
-    // Generar usuarios y mascotas
     const usersData = generateUsers(userCount);
     const petsData = generatePets(petCount);
 
-    // Insertar usuarios en la base de datos
     const insertedUsers = [];
     for (const userData of usersData) {
         try {
@@ -76,7 +56,6 @@ router.post('/generateData', catchAsync(async (req, res) => {
         }
     }
 
-    // Insertar mascotas en la base de datos
     const insertedPets = [];
     for (const petData of petsData) {
         try {
@@ -111,13 +90,9 @@ router.post('/generateData', catchAsync(async (req, res) => {
     });
 }));
 
-/**
- * GET /api/mocks/adoptions
- * Genera adopciones de prueba
- */
 router.get('/adoptions', catchAsync(async (req, res) => {
     const { count = 20 } = req.query;
-    const numAdoptions = Math.min(parseInt(count), 100); // Máximo 100
+    const numAdoptions = Math.min(parseInt(count), 100);
 
     const adoptions = generateAdoptions(numAdoptions);
 

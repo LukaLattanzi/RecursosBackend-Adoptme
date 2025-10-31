@@ -1,12 +1,5 @@
-/**
- * Middleware de manejo de errores centralizado
- */
-
 import logger from './logger.js';
 
-/**
- * Clase personalizada para errores de la aplicación
- */
 export class AppError extends Error {
     constructor(message, statusCode) {
         super(message);
@@ -18,44 +11,29 @@ export class AppError extends Error {
     }
 }
 
-/**
- * Manejo de errores de validación de MongoDB
- */
 const handleValidationErrorDB = (err) => {
     const errors = Object.values(err.errors).map(el => el.message);
     const message = `Datos inválidos: ${errors.join('. ')}`;
     return new AppError(message, 400);
 };
 
-/**
- * Manejo de errores de duplicación de MongoDB
- */
 const handleDuplicateFieldsDB = (err) => {
     const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
     const message = `Campo duplicado: ${value}. Por favor usa otro valor.`;
     return new AppError(message, 400);
 };
 
-/**
- * Manejo de errores de CastError de MongoDB
- */
 const handleCastErrorDB = (err) => {
     const message = `ID inválido: ${err.value}`;
     return new AppError(message, 400);
 };
 
-/**
- * Manejo de errores de JWT
- */
 const handleJWTError = () =>
     new AppError('Token inválido. Por favor inicia sesión nuevamente.', 401);
 
 const handleJWTExpiredError = () =>
     new AppError('Tu token ha expirado. Por favor inicia sesión nuevamente.', 401);
 
-/**
- * Envío de errores en desarrollo
- */
 const sendErrorDev = (err, res) => {
     logger.error('Error en desarrollo', {
         status: err.status,
@@ -72,11 +50,8 @@ const sendErrorDev = (err, res) => {
     });
 };
 
-/**
- * Envío de errores en producción
- */
 const sendErrorProd = (err, res) => {
-    // Error operacional, mensaje confiable para enviar al cliente
+
     if (err.isOperational) {
         logger.error('Error operacional', {
             status: err.status,
@@ -89,7 +64,7 @@ const sendErrorProd = (err, res) => {
             message: err.message
         });
     }
-    // Error de programación u otros errores desconocidos: no filtrar detalles
+
     else {
         logger.fatal('Error de programación no controlado', {
             error: err.message,
@@ -103,9 +78,6 @@ const sendErrorProd = (err, res) => {
     }
 };
 
-/**
- * Middleware principal de manejo de errores
- */
 export const globalErrorHandler = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
@@ -118,7 +90,6 @@ export const globalErrorHandler = (err, req, res, next) => {
         let error = { ...err };
         error.message = err.message;
 
-        // Manejo de diferentes tipos de errores de MongoDB
         if (error.name === 'CastError') error = handleCastErrorDB(error);
         if (error.code === 11000) error = handleDuplicateFieldsDB(error);
         if (error.name === 'ValidationError') error = handleValidationErrorDB(error);
@@ -129,9 +100,6 @@ export const globalErrorHandler = (err, req, res, next) => {
     }
 };
 
-/**
- * Middleware para manejar rutas no encontradas
- */
 export const notFoundHandler = (req, res, next) => {
     logger.warning(`Ruta no encontrada: ${req.originalUrl}`, {
         method: req.method,
@@ -144,9 +112,6 @@ export const notFoundHandler = (req, res, next) => {
     next(err);
 };
 
-/**
- * Wrapper para funciones async para capturar errores
- */
 export const catchAsync = (fn) => {
     return (req, res, next) => {
         fn(req, res, next).catch(next);

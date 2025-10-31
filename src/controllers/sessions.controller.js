@@ -38,7 +38,6 @@ const login = async (req, res) => {
     try {
         await usersService.update(user._id, { last_connection: new Date() });
     } catch (err) {
-        // si falla la actualización no bloqueamos el login
         logger.error('No se pudo actualizar last_connection', { error: err.message });
     }
 
@@ -46,7 +45,6 @@ const login = async (req, res) => {
 }
 
 const logout = async (req, res) => {
-    // intentar leer cookie y actualizar last_connection del usuario
     const cookie = req.cookies['coderCookie'];
     if (cookie) {
         try {
@@ -58,7 +56,6 @@ const logout = async (req, res) => {
                 }
             }
         } catch (err) {
-            // ignore
         }
     }
 

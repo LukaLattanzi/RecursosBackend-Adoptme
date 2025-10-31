@@ -5,7 +5,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Definir niveles personalizados con prioridades
 const customLevels = {
     levels: {
         debug: 0,
@@ -25,10 +24,8 @@ const customLevels = {
     }
 };
 
-// Configurar colores
 winston.addColors(customLevels.colors);
 
-// Formato personalizado para desarrollo
 const devFormat = winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.colorize({ all: true }),
@@ -38,14 +35,12 @@ const devFormat = winston.format.combine(
     })
 );
 
-// Formato para producción
 const prodFormat = winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.errors({ stack: true }),
     winston.format.json()
 );
 
-// Logger para desarrollo
 const developmentLogger = winston.createLogger({
     levels: customLevels.levels,
     level: 'debug',
@@ -55,13 +50,11 @@ const developmentLogger = winston.createLogger({
     ]
 });
 
-// Logger para producción
 const productionLogger = winston.createLogger({
     levels: customLevels.levels,
     level: 'info',
     defaultMeta: { service: 'adoptme-api' },
     transports: [
-        // Logs info, warning en consola
         new winston.transports.Console({
             level: 'info',
             format: winston.format.combine(
@@ -70,7 +63,6 @@ const productionLogger = winston.createLogger({
             ),
             silent: false
         }),
-        // Solo errores y fatales en archivo
         new winston.transports.File({
             filename: path.join(__dirname, '../../logs/errors.log'),
             level: 'error',
@@ -78,15 +70,12 @@ const productionLogger = winston.createLogger({
             silent: false
         })
     ],
-    // Excluir handlers de nivel inferior
     exitOnError: false
 });
 
-// Determinar el entorno y exportar el logger apropiado
 const nodeEnv = process.env.NODE_ENV || 'development';
 const logger = nodeEnv === 'production' ? productionLogger : developmentLogger;
 
-// Agregar método para logging de requests HTTP
 logger.httpLog = (req, res, next) => {
     const start = Date.now();
 

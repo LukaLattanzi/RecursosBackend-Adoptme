@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-// Bootstrap para asegurar que dotenv se cargue antes de evaluar otros módulos
 import 'dotenv/config';
 
 console.log('[bootstrap] dotenv cargado. NODE_ENV =', process.env.NODE_ENV || 'undefined');

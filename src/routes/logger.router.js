@@ -4,10 +4,6 @@ import { catchAsync } from '../utils/errorHandler.js';
 
 const router = Router();
 
-/**
- * GET /api/loggerTest
- * Endpoint para probar todos los niveles de logging
- */
 router.get('/loggerTest', catchAsync(async (req, res) => {
     logger.debug('Este es un mensaje de DEBUG - Solo visible en desarrollo');
 

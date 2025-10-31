@@ -10,7 +10,6 @@ router.get('/:uid', usersController.getUser);
 router.put('/:uid', usersController.updateUser);
 router.delete('/:uid', usersController.deleteUser);
 
-// Subir uno o múltiples documentos para un usuario
 router.post('/:uid/documents', uploader.array('documents', 10), usersController.uploadDocuments);
 
 export default router;
