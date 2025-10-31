@@ -114,5 +114,25 @@ npm run dev         # Desarrollo con nodemon
 
 ---
 
+## 📚 Documentación API (Swagger)
+
+La API principal ahora incluye documentación interactiva con Swagger UI. Para verla en local:
+
+1. Instala dependencias (si no lo hiciste):
+
+```
+npm install
+```
+
+2. Levanta la aplicación:
+
+```
+npm start
+```
+
+3. Abre en tu navegador: http://localhost:8080/api/docs/
+
+La documentación cubre los módulos: Sessions, Pets y Adoptions (endpoints, parámetros y modelos básicos).
+
 **Autor:** Luka Lattanzi  
 **Proyecto:** Backend AdoptMe - ENTREGABLE N°1 ✅

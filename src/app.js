@@ -15,6 +15,7 @@ import adoptionsRouter from './routes/adoption.router.js';
 import sessionsRouter from './routes/sessions.router.js';
 import mocksRouter from './routes/mocks.router.js';
 import loggerRouter from './routes/logger.router.js';
+import swaggerRouter from './routes/swaggerDocs.router.js';
 import { globalErrorHandler, notFoundHandler } from './utils/errorHandler.js';
 import logger from './utils/logger.js';
 
@@ -90,6 +91,8 @@ app.use('/api/adoptions', adoptionsRouter);
 app.use('/api/sessions', sessionsRouter);
 app.use('/api/mocks', mocksRouter);
 app.use('/api', loggerRouter);
+// Documentación API (Swagger)
+app.use('/api/docs', swaggerRouter);
 
 // Middleware para rutas no encontradas (debe ir después de todas las rutas)
 app.all('*', notFoundHandler);
