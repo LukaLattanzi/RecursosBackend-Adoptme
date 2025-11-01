@@ -1,0 +1,8 @@
+node_modules
+.git
+.env
+coverage
+logs
+npm-debug.log*
+public/img/*
+public/documents/*

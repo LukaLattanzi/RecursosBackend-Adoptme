@@ -8,7 +8,7 @@ const specs = {
     info: {
         title: 'Adoptme API',
         version: '1.0.0',
-        description: 'Documentación de la API - Sessions, Pets y Adoptions'
+        description: 'Documentación de la API - Sessions, Pets, Adoptions y Users'
     },
     servers: [{ url: 'http://localhost:8080' }],
     components: {
@@ -20,6 +20,26 @@ const specs = {
                     last_name: { type: 'string' },
                     email: { type: 'string' },
                     password: { type: 'string' }
+                }
+            },
+            User: {
+                type: 'object',
+                properties: {
+                    _id: { type: 'string' },
+                    first_name: { type: 'string' },
+                    last_name: { type: 'string' },
+                    email: { type: 'string' },
+                    role: { type: 'string' },
+                    pets: { type: 'array', items: { type: 'string' } },
+                    documents: { type: 'array', items: { $ref: '#/components/schemas/Document' } },
+                    last_connection: { type: 'string', format: 'date-time' }
+                }
+            },
+            Document: {
+                type: 'object',
+                properties: {
+                    name: { type: 'string' },
+                    reference: { type: 'string' }
                 }
             },
             LoginCredentials: { type: 'object', properties: { email: { type: 'string' }, password: { type: 'string' } } },
@@ -48,6 +68,54 @@ const specs = {
         '/api/pets': {
             get: { tags: ['Pets'], summary: 'Listar mascotas', responses: { '200': { description: 'Lista' } } },
             post: { tags: ['Pets'], summary: 'Crear mascota', requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/PetInput' } } } }, responses: { '200': { description: 'Creada' } } }
+        },
+        '/api/users': {
+            get: {
+                tags: ['Users'],
+                summary: 'Listar usuarios',
+                responses: { '200': { description: 'Lista de usuarios', content: { 'application/json': { schema: { type: 'object' } } } } }
+            }
+        },
+        '/api/users/{uid}': {
+            get: {
+                tags: ['Users'],
+                summary: 'Obtener usuario por ID',
+                parameters: [{ name: 'uid', in: 'path', required: true, schema: { type: 'string' } }],
+                responses: { '200': { description: 'Usuario', content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } } }, '404': { description: 'No encontrado' } }
+            },
+            put: {
+                tags: ['Users'],
+                summary: 'Actualizar usuario',
+                parameters: [{ name: 'uid', in: 'path', required: true, schema: { type: 'string' } }],
+                requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } } },
+                responses: { '200': { description: 'Actualizado' } }
+            },
+            delete: {
+                tags: ['Users'],
+                summary: 'Eliminar usuario',
+                parameters: [{ name: 'uid', in: 'path', required: true, schema: { type: 'string' } }],
+                responses: { '200': { description: 'Eliminado' } }
+            }
+        },
+        '/api/users/{uid}/documents': {
+            post: {
+                tags: ['Users'],
+                summary: 'Subir documentos para un usuario',
+                parameters: [{ name: 'uid', in: 'path', required: true, schema: { type: 'string' } }],
+                requestBody: {
+                    content: {
+                        'multipart/form-data': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    documents: { type: 'array', items: { type: 'string', format: 'binary' } }
+                                }
+                            }
+                        }
+                    }
+                },
+                responses: { '200': { description: 'Documentos subidos' } }
+            }
         },
         '/api/pets/withimage': { post: { tags: ['Pets'], summary: 'Crear mascota con imagen', responses: { '200': { description: 'Creada con imagen' } } } },
         '/api/pets/{pid}': {
