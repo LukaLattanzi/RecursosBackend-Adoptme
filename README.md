@@ -10,16 +10,73 @@ Sistema backend para gestión de adopciones de mascotas con módulo de mocking, 
 
 ---
 
-## 📋 Tabla de Contenidos
+## 🎓 **INICIO RÁPIDO PARA PROFESORES/EVALUADORES**
 
+### ⚡ Método 1: Docker (Recomendado - 1 minuto)
+
+```bash
+# 1. Descargar imagen desde Docker Hub
+docker pull lukalattanzi/adoptme:latest
+
+# 2. Ejecutar (reemplazar con tu MONGO_URL)
+docker run -d -p 8080:8080 \
+  -e MONGO_URL="mongodb+srv://usuario:password@cluster.mongodb.net/adoptme" \
+  --name adoptme \
+  lukalattanzi/adoptme:latest
+
+# 3. Abrir documentación Swagger
+# http://localhost:8080/api/docs
+
+# 4. Detener cuando termines
+docker stop adoptme && docker rm adoptme
+```
+
+### � Método 2: Desde GitHub (3-5 minutos)
+
+```bash
+# 1. Clonar repositorio
+git clone https://github.com/LukaLattanzi/RecursosBackend-Adoptme.git
+cd RecursosBackend-Adoptme
+
+# 2. Instalar y configurar
+npm install
+cp .env.example .env
+# Editar .env con tu MONGO_URL
+
+# 3. Ejecutar tests
+npm test  # Debe mostrar: 27 passing
+
+# 4. Iniciar servidor
+npm start
+
+# 5. Abrir documentación Swagger
+# http://localhost:8080/api/docs
+```
+
+### 📊 ¿Qué Verificar?
+
+| Item                | Ubicación                                     | Esperado                          |
+| ------------------- | --------------------------------------------- | --------------------------------- |
+| **Swagger Users**   | http://localhost:8080/api/docs → Tag "Users"  | 5 endpoints documentados          |
+| **Tests Adoptions** | `npm test` → archivo adoptions.test.js        | 12 tests pasando                  |
+| **Dockerfile**      | Ver archivo `Dockerfile`                      | Multi-stage, no-root, healthcheck |
+| **Docker Hub**      | https://hub.docker.com/r/lukalattanzi/adoptme | Imagen pública disponible         |
+
+---
+
+## �📋 Tabla de Contenidos
+
+- [Inicio Rápido para Profesores](#-inicio-rápido-para-profesoresevaluadores)
 - [Entrega Final](#-entrega-final---completada)
-- [Inicio Rápido](#-inicio-rápido)
+- [Inicio Rápido General](#-inicio-rápido)
 - [Docker](#-docker)
 - [Documentación API (Swagger)](#-documentación-api-swagger)
 - [Tests](#-tests)
 - [Instalación Local](#-instalación-local)
 - [Endpoints Principales](#-endpoints-principales)
-- [Para Evaluadores](#-guía-para-evaluadores)
+- [Guía para Evaluadores](#-guía-para-evaluadores)
+- [Tecnologías](#-tecnologías-utilizadas)
+- [Estructura del Proyecto](#-estructura-del-proyecto)
 
 ---
 
@@ -341,65 +398,227 @@ npm run docker:stop  # Detener contenedor Docker
 
 ## 🎓 Guía para Evaluadores
 
-### Verificación Rápida (5 minutos)
+### ✅ Requisitos de Entrega Cumplidos
+
+| #   | Requisito                         | Estado | Verificación                                    |
+| --- | --------------------------------- | ------ | ----------------------------------------------- |
+| 1   | **Documentación Swagger - Users** | ✅     | 5 endpoints en `/api/docs` tag "Users"          |
+| 2   | **Tests adoption.router.js**      | ✅     | 12 tests en `test/adoptions.test.js`            |
+| 3   | **Dockerfile optimizado**         | ✅     | Multi-stage build, usuario no-root, healthcheck |
+| 4   | **Imagen en Docker Hub**          | ✅     | `docker pull lukalattanzi/adoptme:latest`       |
+| 5   | **README completo**               | ✅     | Este documento con todas las instrucciones      |
+
+### 🔍 Verificación Paso a Paso
+
+#### 1️⃣ Verificar Docker Hub (30 segundos)
 
 ```bash
-# 1. Ejecutar desde Docker Hub
+# Descargar imagen pública
 docker pull lukalattanzi/adoptme:latest
+
+# Debe descargar sin errores
+# Imagen: ~280MB
+```
+
+**Enlace directo:** https://hub.docker.com/r/lukalattanzi/adoptme
+
+#### 2️⃣ Verificar Swagger - 5 Endpoints Users (2 minutos)
+
+```bash
+# Ejecutar contenedor
 docker run -d -p 8080:8080 \
-  -e MONGO_URL="mongodb+srv://..." \
+  -e MONGO_URL="tu_mongodb_url" \
   --name adoptme-eval \
   lukalattanzi/adoptme:latest
 
-# 2. Verificar Swagger
-# Abrir: http://localhost:8080/api/docs
-# Buscar tag "Users" y verificar 5 endpoints
+# Abrir en navegador: http://localhost:8080/api/docs
+```
 
-# 3. Verificar Tests (opcional - requiere clonar repo)
+**Buscar tag "Users" y verificar:**
+
+- ✅ `GET /api/users` - Listar usuarios
+- ✅ `GET /api/users/:uid` - Obtener usuario por ID
+- ✅ `PUT /api/users/:uid` - Actualizar usuario
+- ✅ `DELETE /api/users/:uid` - Eliminar usuario
+- ✅ `POST /api/users/:uid/documents` - Subir documentos
+
+Cada endpoint debe incluir:
+
+- Descripción completa
+- Parámetros documentados
+- Schemas de request/response
+- Códigos de estado (200, 400, 404, 500)
+
+#### 3️⃣ Verificar Tests - 12 de Adoptions (3 minutos)
+
+```bash
+# Clonar repositorio
 git clone https://github.com/LukaLattanzi/RecursosBackend-Adoptme.git
 cd RecursosBackend-Adoptme
-npm install && npm test
-# Debe mostrar: 27 passing
 
-# 4. Limpiar
+# Instalar dependencias
+npm install
+
+# Ejecutar tests
+npm test
+```
+
+**Output esperado:**
+
+```
+  Adoptions API - Tests Completos
+    GET /api/adoptions
+      ✔ debe devolver lista vacía cuando no hay adopciones
+      ✔ debe devolver lista con adopciones existentes
+      ✔ debe manejar errores internos del servicio
+    GET /api/adoptions/:aid
+      ✔ debe retornar 404 cuando la adopción no existe
+      ✔ debe devolver adopción existente correctamente
+      ✔ debe buscar por el ID correcto
+    POST /api/adoptions/:uid/:pid
+      ✔ debe retornar 404 cuando el usuario no existe
+      ✔ debe retornar 404 cuando la mascota no existe
+      ✔ debe retornar 400 cuando la mascota ya está adoptada
+      ✔ debe adoptar correctamente cuando todos los datos son válidos
+      ✔ debe agregar la mascota al array de pets del usuario
+      ✔ debe verificar que se llaman los servicios en el orden correcto
+
+  27 passing (XXXms)
+```
+
+**Verificar archivo:** `test/adoptions.test.js` contiene los 12 tests
+
+#### 4️⃣ Verificar Dockerfile (1 minuto)
+
+```bash
+# Ver contenido del Dockerfile
+cat Dockerfile
+```
+
+**Debe contener:**
+
+- ✅ Multi-stage build (`FROM node:20-alpine AS builder`)
+- ✅ Usuario no-root (`USER nodejs`)
+- ✅ Healthcheck configurado
+- ✅ Variables de entorno documentadas
+- ✅ Optimizaciones (npm ci, cache clean)
+
+#### 5️⃣ Limpiar Ambiente
+
+```bash
+# Detener contenedor de prueba
 docker stop adoptme-eval && docker rm adoptme-eval
 ```
 
-### Checklist de Evaluación
+### 📝 Checklist de Evaluación Completa
 
 **Documentación Swagger Users:**
 
 - [ ] Tag "Users" visible en /api/docs
-- [ ] GET /api/users con schema completo
-- [ ] GET /api/users/:uid con parámetros y respuestas
-- [ ] PUT /api/users/:uid con requestBody
-- [ ] DELETE /api/users/:uid documentado
-- [ ] POST /api/users/:uid/documents con multipart/form-data
+- [ ] GET /api/users - Schema completo con UserDTO
+- [ ] GET /api/users/:uid - Parámetro uid documentado
+- [ ] PUT /api/users/:uid - RequestBody con schema
+- [ ] DELETE /api/users/:uid - Responses 200 y 404
+- [ ] POST /api/users/:uid/documents - Multipart/form-data
 
 **Tests adoption.router.js:**
 
-- [ ] 12 tests de adoptions presentes
-- [ ] GET /api/adoptions cubierto (3 tests)
-- [ ] GET /api/adoptions/:aid cubierto (3 tests)
-- [ ] POST /api/adoptions/:uid/:pid cubierto (6 tests)
-- [ ] Casos de éxito y error verificados
-- [ ] Todos los tests pasan (27/27)
+- [ ] 12 tests de adoptions en total
+- [ ] GET /api/adoptions - 3 tests (vacío, con datos, errores)
+- [ ] GET /api/adoptions/:aid - 3 tests (404, existente, ID correcto)
+- [ ] POST /api/adoptions/:uid/:pid - 6 tests (user 404, pet 404, adopted, success, etc.)
+- [ ] Usa Mocha + Chai + Supertest
+- [ ] Mocks de servicios implementados
+- [ ] Todos los tests pasan
 
 **Dockerfile:**
 
-- [ ] Multi-stage build implementado
-- [ ] Usuario no-root (nodejs)
-- [ ] Healthcheck configurado
-- [ ] Variables de entorno documentadas
-- [ ] Imagen construye sin errores
-- [ ] Contenedor ejecuta correctamente
+- [ ] Multi-stage build presente
+- [ ] Stage 1: builder - instala dependencias
+- [ ] Stage 2: runtime - copia de builder
+- [ ] Usuario nodejs (no-root) configurado
+- [ ] Healthcheck con endpoint /api/sessions/current
+- [ ] ENTRYPOINT con dumb-init
+- [ ] Variables de entorno ENV NODE_ENV=production
 
 **Docker Hub:**
 
-- [ ] Imagen pública accesible
-- [ ] `docker pull` funciona
-- [ ] Enlace en README presente
+- [ ] Imagen accesible públicamente
+- [ ] `docker pull lukalattanzi/adoptme:latest` funciona
 - [ ] Imagen ejecuta correctamente
+- [ ] Tag "latest" presente
+- [ ] Tamaño razonable (~280MB)
+
+**README.md:**
+
+- [ ] Instrucciones claras para ejecutar con Docker
+- [ ] Instrucciones para ejecutar tests
+- [ ] Documentación de endpoints
+- [ ] Requisitos del sistema documentados
+- [ ] Variables de entorno explicadas
+
+### 🚀 Comandos de Verificación Completa (Todo en Uno)
+
+```bash
+# Crear archivo de verificación
+cat > verificar.sh << 'EOF'
+#!/bin/bash
+echo "🔍 Iniciando verificación de AdoptMe API..."
+echo ""
+
+echo "1️⃣ Verificando Docker Hub..."
+docker pull lukalattanzi/adoptme:latest && echo "✅ Imagen descargada" || echo "❌ Error al descargar"
+echo ""
+
+echo "2️⃣ Verificando Dockerfile local..."
+if [ -f "Dockerfile" ]; then
+    grep -q "multi-stage\|AS builder" Dockerfile && echo "✅ Multi-stage build" || echo "❌ No multi-stage"
+    grep -q "USER nodejs" Dockerfile && echo "✅ Usuario no-root" || echo "❌ No user no-root"
+    grep -q "HEALTHCHECK" Dockerfile && echo "✅ Healthcheck" || echo "❌ No healthcheck"
+else
+    echo "❌ Dockerfile no encontrado"
+fi
+echo ""
+
+echo "3️⃣ Ejecutando tests..."
+npm test 2>&1 | grep -E "passing|failing"
+echo ""
+
+echo "4️⃣ Iniciando contenedor de prueba..."
+docker run -d -p 8080:8080 \
+  -e MONGO_URL="mongodb+srv://..." \
+  --name adoptme-verify \
+  lukalattanzi/adoptme:latest
+
+sleep 5
+docker logs adoptme-verify | head -n 20
+
+echo ""
+echo "✅ Verificación completa"
+echo "📖 Swagger: http://localhost:8080/api/docs"
+echo "🧹 Limpiar: docker stop adoptme-verify && docker rm adoptme-verify"
+EOF
+
+chmod +x verificar.sh
+./verificar.sh
+```
+
+### 📊 Resumen de Evaluación
+
+**Puntos Clave:**
+
+- ✅ Proyecto completamente funcional
+- ✅ Dockerizado y en Docker Hub público
+- ✅ 27 tests pasando (12 de adoptions específicamente)
+- ✅ Documentación Swagger completa para Users (5 endpoints)
+- ✅ Dockerfile optimizado con mejores prácticas
+- ✅ README exhaustivo con todas las instrucciones
+
+**Enlaces Importantes:**
+
+- 🔗 GitHub: https://github.com/LukaLattanzi/RecursosBackend-Adoptme
+- 🔗 Docker Hub: https://hub.docker.com/r/lukalattanzi/adoptme
+- 🔗 Swagger: http://localhost:8080/api/docs (después de ejecutar)
 
 ---
 
@@ -551,4 +770,75 @@ docker run -d -p 3000:8080 ... lukalattanzi/adoptme:latest
 
 ---
 
+## 📦 Información de Entrega
+
+### 📅 Detalles de la Entrega
+
+- **Fecha de Entrega:** 01/11/2025
+- **Estudiante:** Luka Lattanzi
+- **Versión:** 1.0.0
+- **Estado:** ✅ Completo y Listo para Evaluación
+
+### 🔗 Enlaces de Entrega
+
+| Recurso                | URL                                                     | Descripción                             |
+| ---------------------- | ------------------------------------------------------- | --------------------------------------- |
+| **Repositorio GitHub** | https://github.com/LukaLattanzi/RecursosBackend-Adoptme | Código fuente completo                  |
+| **Docker Hub**         | https://hub.docker.com/r/lukalattanzi/adoptme           | Imagen Docker pública                   |
+| **Swagger Docs**       | http://localhost:8080/api/docs                          | Documentación API (después de ejecutar) |
+
+### 📥 Comandos de Descarga
+
+```bash
+# Clonar desde GitHub
+git clone https://github.com/LukaLattanzi/RecursosBackend-Adoptme.git
+
+# Descargar desde Docker Hub
+docker pull lukalattanzi/adoptme:latest
+```
+
+### 📊 Resumen de Entregables
+
+| Entregable                  | Archivo/Ubicación             | Estado           |
+| --------------------------- | ----------------------------- | ---------------- |
+| Documentación Swagger Users | `/api/docs` tag "Users"       | ✅ 5 endpoints   |
+| Tests Adoptions             | `test/adoptions.test.js`      | ✅ 12 tests      |
+| Dockerfile Optimizado       | `Dockerfile`                  | ✅ Multi-stage   |
+| Imagen Docker Hub           | `lukalattanzi/adoptme:latest` | ✅ Pública       |
+| README Completo             | `README.md`                   | ✅ Este archivo  |
+| Tests Completos             | `npm test`                    | ✅ 27/27 passing |
+
+### 🎯 Cómo Evaluar Este Proyecto
+
+**Opción Rápida (Docker):**
+
+```bash
+docker pull lukalattanzi/adoptme:latest
+docker run -d -p 8080:8080 -e MONGO_URL="..." lukalattanzi/adoptme:latest
+# Abrir: http://localhost:8080/api/docs
+```
+
+**Opción Completa (GitHub + Tests):**
+
+```bash
+git clone https://github.com/LukaLattanzi/RecursosBackend-Adoptme.git
+cd RecursosBackend-Adoptme
+npm install
+npm test    # Ver 27 tests pasando
+npm start   # Iniciar servidor
+# Abrir: http://localhost:8080/api/docs
+```
+
+### 📧 Contacto
+
+- **GitHub:** [@LukaLattanzi](https://github.com/LukaLattanzi)
+- **Docker Hub:** [lukalattanzi](https://hub.docker.com/u/lukalattanzi)
+- **Email:** [Disponible en el perfil de GitHub]
+
+---
+
 **⭐ Si este proyecto te fue útil, considera darle una estrella en GitHub**
+
+---
+
+**Desarrollado con ❤️ por Luka Lattanzi - 2025**
