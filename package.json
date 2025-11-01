@@ -6,14 +6,12 @@
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
-    "check:db": "node -r dotenv/config scripts/check-mongo.js",
-    "start:prod": "NODE_ENV=production node src/app.js",
     "dev": "nodemon src/app.js",
     "test": "mocha --exit 'test/**/*.test.js'",
-    "test:mocking": "node test-mocking.js",
-    "test:logger": "node test-logger.js",
-    "test:logger:prod": "NODE_ENV=production node test-logger.js",
-    "verify": "node verify-entregable1.js"
+    "check:db": "node -r dotenv/config scripts/check-mongo.js",
+    "docker:build": "docker build -t lukalattanzi/adoptme:latest .",
+    "docker:run": "docker run -d -p 8080:8080 --env-file .env --name adoptme-app lukalattanzi/adoptme:latest",
+    "docker:stop": "docker stop adoptme-app && docker rm adoptme-app"
   },
   "keywords": [],
   "author": "",

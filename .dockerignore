@@ -1,8 +1,56 @@
+# Dependencias
 node_modules
-.git
-.env
-coverage
-logs
 npm-debug.log*
+yarn-error.log
+
+# Archivos de entorno (se pasan como variables al contenedor)
+.env
+.env.local
+.env.*.local
+
+# Tests
+test
+coverage
+*.test.js
+*.spec.js
+
+# Git
+.git
+.gitignore
+.github
+
+# IDE y editores
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Logs (se generan en el contenedor)
+logs
+*.log
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de usuario (se montan como volúmenes si es necesario)
 public/img/*
 public/documents/*
+
+# Archivos temporales
+*.tmp
+*.temp
+
+# Documentación de desarrollo
+docs
+
+# CI/CD
+.travis.yml
+.gitlab-ci.yml
+azure-pipelines.yml
+
+# Docker
+.dockerignore
+docker-compose.yml
+

@@ -21,7 +21,6 @@ mongoose.connect(uri, options)
   .then(() => process.exit(0))
   .catch((err) => {
     console.error('❌ Error conectando a MongoDB:', err.message);
-    // Mostrar motivo más detallado si está disponible
     if (err && err.stack) console.error(err.stack);
     process.exit(1);
   });

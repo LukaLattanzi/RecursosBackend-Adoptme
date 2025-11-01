@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  adoptme:
+    image: lukalattanzi/adoptme:latest
+    container_name: adoptme-app
+    ports:
+      - "8080:8080"
+    environment:
+      - MONGO_URL=${MONGO_URL}
+      - NODE_ENV=production
+      - PORT=8080
+    volumes:
+      - ./public/img:/usr/src/app/public/img
+      - ./public/documents:/usr/src/app/public/documents
+      - ./logs:/usr/src/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8080/api/sessions/current', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - adoptme-network
+
+networks:
+  adoptme-network:
+    driver: bridge

@@ -72,49 +72,262 @@ const specs = {
         '/api/users': {
             get: {
                 tags: ['Users'],
-                summary: 'Listar usuarios',
-                responses: { '200': { description: 'Lista de usuarios', content: { 'application/json': { schema: { type: 'object' } } } } }
+                summary: 'Listar todos los usuarios',
+                description: 'Obtiene la lista completa de usuarios registrados en el sistema',
+                responses: {
+                    '200': {
+                        description: 'Lista de usuarios obtenida exitosamente',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        status: { type: 'string', example: 'success' },
+                                        results: { type: 'number', example: 10 },
+                                        payload: {
+                                            type: 'array',
+                                            items: { $ref: '#/components/schemas/User' }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '500': {
+                        description: 'Error interno del servidor',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        status: { type: 'string', example: 'error' },
+                                        message: { type: 'string' }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         '/api/users/{uid}': {
             get: {
                 tags: ['Users'],
-                summary: 'Obtener usuario por ID',
-                parameters: [{ name: 'uid', in: 'path', required: true, schema: { type: 'string' } }],
-                responses: { '200': { description: 'Usuario', content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } } }, '404': { description: 'No encontrado' } }
+                summary: 'Obtener un usuario por ID',
+                description: 'Obtiene la información detallada de un usuario específico mediante su ID',
+                parameters: [{
+                    name: 'uid',
+                    in: 'path',
+                    required: true,
+                    description: 'ID único del usuario',
+                    schema: { type: 'string' },
+                    example: '507f1f77bcf86cd799439011'
+                }],
+                responses: {
+                    '200': {
+                        description: 'Usuario encontrado exitosamente',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        status: { type: 'string', example: 'success' },
+                                        payload: { $ref: '#/components/schemas/User' }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '404': {
+                        description: 'Usuario no encontrado',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        status: { type: 'string', example: 'error' },
+                                        message: { type: 'string', example: 'Usuario no encontrado' }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '500': {
+                        description: 'Error interno del servidor'
+                    }
+                }
             },
             put: {
                 tags: ['Users'],
-                summary: 'Actualizar usuario',
-                parameters: [{ name: 'uid', in: 'path', required: true, schema: { type: 'string' } }],
-                requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } } },
-                responses: { '200': { description: 'Actualizado' } }
+                summary: 'Actualizar un usuario',
+                description: 'Actualiza la información de un usuario existente',
+                parameters: [{
+                    name: 'uid',
+                    in: 'path',
+                    required: true,
+                    description: 'ID único del usuario a actualizar',
+                    schema: { type: 'string' },
+                    example: '507f1f77bcf86cd799439011'
+                }],
+                requestBody: {
+                    required: true,
+                    description: 'Datos del usuario a actualizar (campos opcionales)',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    first_name: { type: 'string', example: 'Juan' },
+                                    last_name: { type: 'string', example: 'Pérez' },
+                                    email: { type: 'string', example: 'juan.perez@example.com' },
+                                    role: { type: 'string', enum: ['user', 'admin'], example: 'user' }
+                                }
+                            }
+                        }
+                    }
+                },
+                responses: {
+                    '200': {
+                        description: 'Usuario actualizado exitosamente',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        status: { type: 'string', example: 'success' },
+                                        message: { type: 'string', example: 'Usuario actualizado exitosamente' }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '404': {
+                        description: 'Usuario no encontrado'
+                    },
+                    '500': {
+                        description: 'Error interno del servidor'
+                    }
+                }
             },
             delete: {
                 tags: ['Users'],
-                summary: 'Eliminar usuario',
-                parameters: [{ name: 'uid', in: 'path', required: true, schema: { type: 'string' } }],
-                responses: { '200': { description: 'Eliminado' } }
+                summary: 'Eliminar un usuario',
+                description: 'Elimina permanentemente un usuario del sistema',
+                parameters: [{
+                    name: 'uid',
+                    in: 'path',
+                    required: true,
+                    description: 'ID único del usuario a eliminar',
+                    schema: { type: 'string' },
+                    example: '507f1f77bcf86cd799439011'
+                }],
+                responses: {
+                    '200': {
+                        description: 'Usuario eliminado exitosamente',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        status: { type: 'string', example: 'success' },
+                                        message: { type: 'string', example: 'Usuario eliminado exitosamente' }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '404': {
+                        description: 'Usuario no encontrado',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        status: { type: 'string', example: 'error' },
+                                        message: { type: 'string', example: 'Usuario no encontrado' }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '500': {
+                        description: 'Error interno del servidor'
+                    }
+                }
             }
         },
         '/api/users/{uid}/documents': {
             post: {
                 tags: ['Users'],
                 summary: 'Subir documentos para un usuario',
-                parameters: [{ name: 'uid', in: 'path', required: true, schema: { type: 'string' } }],
+                description: 'Permite subir uno o múltiples documentos (archivos) asociados a un usuario específico. Los archivos se almacenan en el servidor y sus referencias se guardan en el perfil del usuario.',
+                parameters: [{
+                    name: 'uid',
+                    in: 'path',
+                    required: true,
+                    description: 'ID único del usuario al que se le subirán los documentos',
+                    schema: { type: 'string' },
+                    example: '507f1f77bcf86cd799439011'
+                }],
                 requestBody: {
+                    required: true,
+                    description: 'Archivos a subir (máximo 10 documentos)',
                     content: {
                         'multipart/form-data': {
                             schema: {
                                 type: 'object',
+                                required: ['documents'],
                                 properties: {
-                                    documents: { type: 'array', items: { type: 'string', format: 'binary' } }
+                                    documents: {
+                                        type: 'array',
+                                        description: 'Array de archivos a subir',
+                                        items: { type: 'string', format: 'binary' },
+                                        maxItems: 10
+                                    }
                                 }
                             }
                         }
                     }
                 },
-                responses: { '200': { description: 'Documentos subidos' } }
+                responses: {
+                    '200': {
+                        description: 'Documentos subidos exitosamente',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        status: { type: 'string', example: 'success' },
+                                        payload: {
+                                            type: 'array',
+                                            items: { $ref: '#/components/schemas/Document' }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '400': {
+                        description: 'No se subieron archivos',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        status: { type: 'string', example: 'error' },
+                                        error: { type: 'string', example: 'No files uploaded' }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    '404': {
+                        description: 'Usuario no encontrado'
+                    },
+                    '500': {
+                        description: 'Error interno del servidor'
+                    }
+                }
             }
         },
         '/api/pets/withimage': { post: { tags: ['Pets'], summary: 'Crear mascota con imagen', responses: { '200': { description: 'Creada con imagen' } } } },
